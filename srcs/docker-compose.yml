@@ -20,6 +20,23 @@ services:
       - mariadb
     env_file:
       - .env
+    secrets:
+      - db_password
+    volumes:
+      - wordpress_data:/var/www/html
+    networks:
+      - inception
+    restart: always
+  
+  nginx:
+    build: ./requirements/nginx
+    container_name: nginx
+    depends_on:
+      - wordpress
+    env_file:
+      - .env
+    ports:
+      - "8443:443"
     volumes:
       - wordpress_data:/var/www/html
     networks:

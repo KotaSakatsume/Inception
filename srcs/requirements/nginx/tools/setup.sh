@@ -14,4 +14,4 @@ if [ ! -f "$SSL_DIR/nginx.crt" ]; then
 		-subj "/C=JP/ST=Tokyo/L=Tokyo/O=42/OU=student/CN=$DOMAIN_NAME"
 fi
 
-nginx -g "daemon off;"
+exec nginx -g "daemon off;"

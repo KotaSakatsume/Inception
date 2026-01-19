@@ -37,14 +37,6 @@ if [ ! -f "${WP_PATH}/wp-config.php" ]; then
     # WordPress 本体
     wp core download --allow-root
 
-    # wp-config.php 作成
-    wp config create \
-        --dbname="${MYSQL_DATABASE}" \
-        --dbuser="${MYSQL_USER}" \
-        --dbpass="${MYSQL_PASSWORD}" \
-        --dbhost="mariadb" \
-        --allow-root
-
     # WordPress インストール
     wp core install \
         --url= kosakats.42.fr \
@@ -53,6 +45,14 @@ if [ ! -f "${WP_PATH}/wp-config.php" ]; then
         --admin_password="${WP_ADMIN_PASSWORD}" \
         --admin_email="${WP_ADMIN_EMAIL}" \
         --skip-email \
+        --allow-root
+
+    # wp-config.php 作成
+    wp config create \
+        --dbname="${MYSQL_DATABASE}" \
+        --dbuser="${MYSQL_USER}" \
+        --dbpass="${MYSQL_PASSWORD}" \
+        --dbhost="mariadb" \
         --allow-root
 
     echo "WordPress installation completed."

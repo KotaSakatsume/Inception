@@ -10,9 +10,9 @@ up:
 	$(COMPOSE) up
 
 build:
-	$(COMPOSE) up --build
 	mkdir -p $(WOEDPERSS_DATA)
 	mkdir -p $(MARIADB_DATA)
+	$(COMPOSE) up --build
 
 down:
 	$(COMPOSE) down

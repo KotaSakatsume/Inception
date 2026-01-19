@@ -9,13 +9,25 @@ echo "Starting WordPress setup..."
 MYSQL_PASSWORD=$(cat /run/secrets/db_password)
 
 # MariaDB が「接続＋DB存在＋権限OK」になるまで待つ
+MAX_RETRIES=30
+COUNT=0
+
 until mysql -h mariadb \
             -u"${MYSQL_USER}" \
             -p"${MYSQL_PASSWORD}" \
             "${MYSQL_DATABASE}" \
             -e "SELECT 1" >/dev/null 2>&1
 do
-    echo "Waiting for MariaDB..."
+    # カウントアップ
+    COUNT=$((COUNT+1))
+    
+    # 上限に達したらエラー終了させる
+    if [ $COUNT -gt $MAX_RETRIES ]; then
+        echo "Error: Timed out waiting for MariaDB to be ready."
+        exit 1
+    fi
+
+    echo "Waiting for MariaDB... (Attempt: $COUNT/$MAX_RETRIES)"
     sleep 3
 done
 

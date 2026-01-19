@@ -1,6 +1,8 @@
 NAME = inception
 
 COMPOSE = docker compose -f srcs/docker-compose.yml
+WOEDPERSS_DATA = /home/kosakats/data/wordpress
+MARIADB_DATA = /home/kosakats/data/mariadb
 
 all: up
 
@@ -9,6 +11,8 @@ up:
 
 build:
 	$(COMPOSE) up --build
+	mkdir -p $(WOEDPERSS_DATA)
+	mkdir -p $(MARIADB_DATA)
 
 down:
 	$(COMPOSE) down

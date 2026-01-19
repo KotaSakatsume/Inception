@@ -47,7 +47,7 @@ if [ ! -f "${WP_PATH}/wp-config.php" ]; then
 
     # WordPress インストール
     wp core install \
-        --url="${DOMAIN_NAME}" \
+        --url= kosakats.42.fr \
         --title="${WP_TITLE}" \
         --admin_user="${WP_ADMIN_USER}" \
         --admin_password="${WP_ADMIN_PASSWORD}" \

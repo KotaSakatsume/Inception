@@ -31,7 +31,7 @@ fi
 cd "$WP_PATH"
 
 # wp-config.php がなければ初期セットアップ
-if [ ! -f "${WP_PATH}/wp-config.php" ]; then
+if [ ! -f "wp-config.php" ]; then
     echo "Installing WordPress..."
 
     # WordPress 本体
@@ -39,7 +39,7 @@ if [ ! -f "${WP_PATH}/wp-config.php" ]; then
 
     # WordPress インストール
     wp core install \
-        --url= kosakats.42.fr \
+        --url=kosakats.42.fr \
         --title="${WP_TITLE}" \
         --admin_user="${WP_ADMIN_USER}" \
         --admin_password="${WP_ADMIN_PASSWORD}" \

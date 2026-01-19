@@ -1,0 +1,144 @@
+```sh
+#!/bin/sh
+set -e
+
+WP_PATH="/var/www/html"
+
+echo "Starting WordPress setup..."
+
+# secrets から DB パスワード取得
+MYSQL_PASSWORD=$(cat /run/secrets/db_password)
+
+# MariaDB が「接続＋DB存在＋権限OK」になるまで待つ
+until mysql -h mariadb \
+            -u"${MYSQL_USER}" \
+            -p"${MYSQL_PASSWORD}" \
+            "${MYSQL_DATABASE}" \
+            -e "SELECT 1" >/dev/null 2>&1
+do
+    echo "Waiting for MariaDB..."
+    sleep 3
+done
+
+echo "MariaDB is ready."
+
+# WP-CLIのインストール（コンテナ再作成時にも対応するためif文の外に移動）
+if [ ! -x /usr/local/bin/wp ]; then
+    curl -sO https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+    chmod +x wp-cli.phar
+    mv wp-cli.phar /usr/local/bin/wp
+fi
+
+cd "$WP_PATH"
+
+# wp-config.php がなければ初期セットアップ
+if [ ! -f "${WP_PATH}/wp-config.php" ]; then
+    echo "Installing WordPress..."
+
+    # WordPress 本体
+    wp core download --allow-root
+
+    # wp-config.php 作成
+    wp config create \
+        --dbname="${MYSQL_DATABASE}" \
+        --dbuser="${MYSQL_USER}" \
+        --dbpass="${MYSQL_PASSWORD}" \
+        --dbhost="mariadb" \
+        --allow-root
+    # WordPress インストール
+    wp core install \
+        --url= kosakats.42.fr \
+        --title="${WP_TITLE}" \
+        --admin_user="${WP_ADMIN_USER}" \
+        --admin_password="${WP_ADMIN_PASSWORD}" \
+        --admin_email="${WP_ADMIN_EMAIL}" \
+        --skip-email \
+        --allow-root
+
+
+    echo "WordPress installation completed."
+else
+    echo "WordPress already installed."
+fi
+
+# 一般ユーザーが存在しない場合のみ作成（再実行時にも対応）
+if ! wp user get "${WP_USER}" --allow-root > /dev/null 2>&1; then
+    echo "Creating user ${WP_USER}..."
+    wp user create "${WP_USER}" "${WP_USER_EMAIL}" --user_pass="${WP_USER_PASSWORD}" --role=author --allow-root
+else
+    echo "User ${WP_USER} already exists."
+fi
+
+echo "Starting PHP-FPM..."
+exec /usr/sbin/php-fpm7.4 -F
+
+```
+wordpress setup中に以下のエラーが発生してしまいます。原因を教えてください
+```
+Attaching to mariadb, nginx, wordpress
+mariadb  | Initializing MariaDB...
+wordpress  | Starting WordPress setup...
+wordpress  | Waiting for MariaDB...
+nginx      | Generating a RSA private key
+nginx      | ............................................+++++
+nginx      | .......................................................................+++++
+nginx      | writing new private key to '/etc/nginx/ssl/nginx.key'
+nginx      | -----
+nginx      | req: No value provided for Subject Attribute CN, skipped
+mariadb    | 2026-01-19  9:23:53 0 [Note] Starting MariaDB 10.5.29-MariaDB-0+deb11u1 source revision c461188ca6ad6ec3a54201eb87ebd75797d296df server_uid u1C2lGV1cu0nfzub3TunH8uZjp4= as process 49
+mariadb    | 2026-01-19  9:23:53 0 [Note] InnoDB: Uses event mutexes
+mariadb    | 2026-01-19  9:23:53 0 [Note] InnoDB: Compressed tables use zlib 1.2.11
+mariadb    | 2026-01-19  9:23:53 0 [Note] InnoDB: Number of pools: 1
+mariadb    | 2026-01-19  9:23:53 0 [Note] InnoDB: Using crc32 + pclmulqdq instructions
+mariadb    | 2026-01-19  9:23:53 0 [Note] mysqld: O_TMPFILE is not supported on /tmp (disabling future attempts)
+mariadb    | 2026-01-19  9:23:53 0 [Note] InnoDB: Using Linux native AIO
+mariadb    | 2026-01-19  9:23:53 0 [Note] InnoDB: Initializing buffer pool, total size = 134217728, chunk size = 134217728
+mariadb    | 2026-01-19  9:23:53 0 [Note] InnoDB: Completed initialization of buffer pool
+mariadb    | 2026-01-19  9:23:53 0 [Note] InnoDB: 128 rollback segments are active.
+mariadb    | 2026-01-19  9:23:53 0 [Note] InnoDB: Creating shared tablespace for temporary tables
+mariadb    | 2026-01-19  9:23:53 0 [Note] InnoDB: Setting file './ibtmp1' size to 12 MB. Physically writing the file full; Please wait ...
+mariadb    | 2026-01-19  9:23:53 0 [Note] InnoDB: File './ibtmp1' size is now 12 MB.
+mariadb    | 2026-01-19  9:23:53 0 [Note] InnoDB: 10.5.29 started; log sequence number 45079; transaction id 20
+mariadb    | 2026-01-19  9:23:53 0 [Note] Plugin 'FEEDBACK' is disabled.
+mariadb    | 2026-01-19  9:23:53 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+mariadb    | 2026-01-19  9:23:53 0 [Note] InnoDB: Buffer pool(s) load completed at 260119  9:23:53
+mariadb    | MariaDB initialized
+mariadb    | Starting MariaDB...
+mariadb    | 2026-01-19  9:23:53 0 [Note] Starting MariaDB 10.5.29-MariaDB-0+deb11u1 source revision c461188ca6ad6ec3a54201eb87ebd75797d296df server_uid u1C2lGV1cu0nfzub3TunH8uZjp4= as process 1
+mariadb    | 2026-01-19  9:23:53 0 [Note] InnoDB: Uses event mutexes
+mariadb    | 2026-01-19  9:23:53 0 [Note] InnoDB: Compressed tables use zlib 1.2.11
+mariadb    | 2026-01-19  9:23:53 0 [Note] InnoDB: Number of pools: 1
+mariadb    | 2026-01-19  9:23:53 0 [Note] InnoDB: Using crc32 + pclmulqdq instructions
+mariadb    | 2026-01-19  9:23:53 0 [Note] mysqld: O_TMPFILE is not supported on /tmp (disabling future attempts)
+mariadb    | 2026-01-19  9:23:53 0 [Note] InnoDB: Using Linux native AIO
+mariadb    | 2026-01-19  9:23:53 0 [Note] InnoDB: Initializing buffer pool, total size = 134217728, chunk size = 134217728
+mariadb    | 2026-01-19  9:23:53 0 [Note] InnoDB: Completed initialization of buffer pool
+mariadb    | 2026-01-19  9:23:53 0 [Note] InnoDB: 128 rollback segments are active.
+mariadb    | 2026-01-19  9:23:53 0 [Note] InnoDB: Creating shared tablespace for temporary tables
+mariadb    | 2026-01-19  9:23:53 0 [Note] InnoDB: Setting file './ibtmp1' size to 12 MB. Physically writing the file full; Please wait ...
+mariadb    | 2026-01-19  9:23:53 0 [Note] InnoDB: File './ibtmp1' size is now 12 MB.
+mariadb    | 2026-01-19  9:23:53 0 [Note] InnoDB: 10.5.29 started; log sequence number 45091; transaction id 20
+mariadb    | 2026-01-19  9:23:53 0 [Note] Plugin 'FEEDBACK' is disabled.
+mariadb    | 2026-01-19  9:23:53 0 [Note] InnoDB: Loading buffer pool(s) from /var/lib/mysql/ib_buffer_pool
+mariadb    | 2026-01-19  9:23:54 0 [Note] InnoDB: Buffer pool(s) load completed at 260119  9:23:53
+mariadb    | 2026-01-19  9:23:54 0 [Note] Server socket created on IP: '0.0.0.0'.
+mariadb    | 2026-01-19  9:23:54 0 [Note] Reading of all Master_info entries succeeded
+mariadb    | 2026-01-19  9:23:54 0 [Note] Added new Master_info '' to hash table
+mariadb    | 2026-01-19  9:23:54 0 [Note] mysqld: ready for connections.
+mariadb    | Version: '10.5.29-MariaDB-0+deb11u1'  socket: '/run/mysqld/mysqld.sock'  port: 3306  Debian 11
+wordpress  | MariaDB is ready.
+wordpress  | Installing WordPress...
+wordpress  | Downloading WordPress 6.9 (en_US)...
+wordpress  | md5 hash verified: 897a9558008a485a247e50e498e5bf51
+wordpress  | Success: WordPress downloaded.
+wordpress  | Success: Generated 'wp-config.php' file.
+wordpress  | Error: Too many positional arguments: kosakats.42.fr
+wordpress exited with code 1 (restarting)
+wordpress  | Starting WordPress setup...
+wordpress  | MariaDB is ready.
+wordpress  | WordPress already installed.
+wordpress  | Creating user user1...
+wordpress  | Error: The site you have requested is not installed.
+wordpress  | Run `wp core install` to create database tables.
+wordpress exited with code 1 (restarting)
+```

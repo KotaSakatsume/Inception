@@ -27,6 +27,8 @@ clean:
 fclean:
 	$(COMPOSE) down -v --remove-orphans
 	docker system prune -af
+	rm -rf $(WOEDPERSS_DATA)
+	rm -rf $(MARIADB_DATA)
 
 logs:
 	$(COMPOSE) logs

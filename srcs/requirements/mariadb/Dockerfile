@@ -14,7 +14,7 @@ RUN chmod +x /usr/local/bin/init.sh
 # MariaDBが必要なディレクトリを作成し、権限を付与（エラー防止）
 RUN mkdir -p /run/mysqld && chown -R mysql:mysql /run/mysqld
 
-# ポート3306を公開
+# ポート3306を宣言
 EXPOSE 3306
 
 ENTRYPOINT ["/usr/local/bin/init.sh"]

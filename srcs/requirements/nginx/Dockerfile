@@ -12,4 +12,4 @@ RUN chmod +x /usr/local/bin/setup.sh
 
 EXPOSE 443
 
-CMD ["/usr/local/bin/setup.sh"]
+ENTRYPOINT ["/usr/local/bin/setup.sh"]

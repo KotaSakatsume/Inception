@@ -16,7 +16,6 @@ until mysql -h mariadb \
             -u"${MYSQL_USER}" \
             -p"${MYSQL_PASSWORD}" \
             "${MYSQL_DATABASE}" \
-            #DBが動いてるかのテスト
             -e "SELECT 1" >/dev/null 2>&1
 do
     # カウントアップ

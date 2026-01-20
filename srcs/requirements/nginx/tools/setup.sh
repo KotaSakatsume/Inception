@@ -13,7 +13,6 @@ if [ ! -f "$SSL_DIR/nginx.crt" ]; then
 		-keyout $SSL_DIR/nginx.key \
 		-out $SSL_DIR/nginx.crt \
 		-subj "/C=JP/ST=Tokyo/L=Tokyo/O=42/OU=student/CN=kosakats.42.fr"
-		#-subj "/C=JP/ST=Tokyo/L=Tokyo/O=42/OU=student/CN=$DOMAIN_NAME"
 
 fi
 

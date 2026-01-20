@@ -24,7 +24,7 @@ re:
 clean:
 	$(COMPOSE) down -v
 
-fclean: stop
+fclean: clean
 	$(COMPOSE) down --rmi all --volumes --remove-orphans
 	rm -rf $(WOEDPERSS_DATA)
 	rm -rf $(MARIADB_DATA)

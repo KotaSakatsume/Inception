@@ -14,6 +14,12 @@ build:
 	mkdir -p $(MARIADB_DATA)
 	$(COMPOSE) up --build
 
+start:
+	$(COMPOSE) start
+
+stop:
+	$(COMPOSE) stop
+
 down:
 	$(COMPOSE) down
 
@@ -36,4 +42,4 @@ logs:
 ps:
 	$(COMPOSE) ps
 
-.PHONY: all up down re clean fclean logs ps
+.PHONY: all up down stop start re clean fclean logs ps build
